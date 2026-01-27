@@ -5,8 +5,11 @@ from rest_framework import viewsets
 from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
 
-from .models import Language, Category, Country, City
-from .serializers import LanguageSerializer, CategorySerializer, CountrySerializer, CitySerializer
+from .models import Language, Category, Country, City, Actor, Film
+from .serializers import (
+    LanguageSerializer, CategorySerializer, CountrySerializer, CitySerializer,
+    ActorSerializer, FilmSerializer
+)
 
 
 class LanguageViewSet(viewsets.ModelViewSet):
@@ -64,3 +67,33 @@ class CityViewSet(viewsets.ModelViewSet):
     search_fields = ['city', 'country__country']
     ordering_fields = ['city_id', 'city']
     ordering = ['city']
+
+
+class ActorViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for Actor model.
+
+    Provides CRUD operations for actor data with search by name.
+    """
+    queryset = Actor.objects.all()
+    serializer_class = ActorSerializer
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    search_fields = ['first_name', 'last_name']
+    ordering_fields = ['actor_id', 'first_name', 'last_name']
+    ordering = ['last_name', 'first_name']
+
+
+class FilmViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for Film model.
+
+    Provides CRUD operations for film data with search, filter, and ordering.
+    Optimized with select_related for language relationships.
+    """
+    queryset = Film.objects.select_related('language', 'original_language').all()
+    serializer_class = FilmSerializer
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_fields = ['rating', 'release_year', 'language']
+    search_fields = ['title', 'description']
+    ordering_fields = ['film_id', 'title', 'release_year', 'rental_rate']
+    ordering = ['title']
