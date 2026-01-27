@@ -157,8 +157,7 @@ class Migrations(models.Model):
 
 
 class Payment(models.Model):
-    pk = models.CompositePrimaryKey('payment_date', 'payment_id')
-    payment_id = models.AutoField()
+    payment_id = models.AutoField(primary_key=True)
     customer_id = models.IntegerField()
     staff_id = models.IntegerField()
     rental_id = models.IntegerField()
