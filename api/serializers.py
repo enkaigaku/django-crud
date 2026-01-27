@@ -2,7 +2,7 @@
 Django REST Framework Serializers for DVD Rental API
 """
 from rest_framework import serializers
-from .models import Language, Category, Country, City, Actor, Film
+from .models import Language, Category, Country, City, Actor, Film, Address, Store, Staff
 
 
 class LanguageSerializer(serializers.ModelSerializer):
@@ -70,3 +70,51 @@ class FilmSerializer(serializers.ModelSerializer):
             'rating', 'last_update'
         ]
         read_only_fields = ['film_id', 'last_update']
+
+
+class AddressSerializer(serializers.ModelSerializer):
+    """Serializer for Address model"""
+    city_name = serializers.CharField(source='city.city', read_only=True)
+    country_name = serializers.CharField(source='city.country.country', read_only=True)
+
+    class Meta:
+        model = Address
+        fields = [
+            'address_id', 'address', 'address2', 'district',
+            'city', 'city_name', 'country_name',
+            'postal_code', 'phone', 'last_update'
+        ]
+        read_only_fields = ['address_id', 'last_update']
+
+
+class StoreSerializer(serializers.ModelSerializer):
+    """Serializer for Store model"""
+    address_info = AddressSerializer(source='address', read_only=True)
+
+    class Meta:
+        model = Store
+        fields = ['store_id', 'manager_staff_id', 'address', 'address_info', 'last_update']
+        read_only_fields = ['store_id', 'last_update']
+
+
+class StaffSerializer(serializers.ModelSerializer):
+    """Serializer for Staff model"""
+    full_name = serializers.SerializerMethodField()
+    store_id = serializers.IntegerField(source='store.store_id', read_only=True)
+
+    class Meta:
+        model = Staff
+        fields = [
+            'staff_id', 'first_name', 'last_name', 'full_name',
+            'address', 'email', 'store', 'store_id', 'active',
+            'username', 'last_update'
+        ]
+        read_only_fields = ['staff_id', 'last_update', 'full_name']
+        extra_kwargs = {
+            'password': {'write_only': True},
+            'password_hash': {'write_only': True},
+        }
+
+    def get_full_name(self, obj):
+        """Combine first and last name"""
+        return f"{obj.first_name} {obj.last_name}".strip()

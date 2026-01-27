@@ -5,7 +5,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import (
     LanguageViewSet, CategoryViewSet, CountryViewSet, CityViewSet,
-    ActorViewSet, FilmViewSet
+    ActorViewSet, FilmViewSet, AddressViewSet, StoreViewSet, StaffViewSet
 )
 
 # Create a router for automatic URL routing
@@ -20,6 +20,11 @@ router.register(r'cities', CityViewSet, basename='city')
 # Register core business viewsets
 router.register(r'actors', ActorViewSet, basename='actor')
 router.register(r'films', FilmViewSet, basename='film')
+
+# Register supporting viewsets
+router.register(r'addresses', AddressViewSet, basename='address')
+router.register(r'stores', StoreViewSet, basename='store')
+router.register(r'staff', StaffViewSet, basename='staff')
 
 urlpatterns = [
     path('', include(router.urls)),

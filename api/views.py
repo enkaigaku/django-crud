@@ -5,10 +5,10 @@ from rest_framework import viewsets
 from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
 
-from .models import Language, Category, Country, City, Actor, Film
+from .models import Language, Category, Country, City, Actor, Film, Address, Store, Staff
 from .serializers import (
     LanguageSerializer, CategorySerializer, CountrySerializer, CitySerializer,
-    ActorSerializer, FilmSerializer
+    ActorSerializer, FilmSerializer, AddressSerializer, StoreSerializer, StaffSerializer
 )
 
 
@@ -97,3 +97,46 @@ class FilmViewSet(viewsets.ModelViewSet):
     search_fields = ['title', 'description']
     ordering_fields = ['film_id', 'title', 'release_year', 'rental_rate']
     ordering = ['title']
+
+
+class AddressViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for Address model.
+
+    Provides CRUD operations for address data with city and country information.
+    """
+    queryset = Address.objects.select_related('city', 'city__country').all()
+    serializer_class = AddressSerializer
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_fields = ['city', 'district']
+    search_fields = ['address', 'district', 'postal_code', 'phone']
+    ordering_fields = ['address_id', 'district']
+    ordering = ['address_id']
+
+
+class StoreViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for Store model.
+
+    Provides CRUD operations for store data.
+    """
+    queryset = Store.objects.select_related('address', 'address__city').all()
+    serializer_class = StoreSerializer
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    ordering_fields = ['store_id']
+    ordering = ['store_id']
+
+
+class StaffViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for Staff model.
+
+    Provides CRUD operations for staff data with name search.
+    """
+    queryset = Staff.objects.select_related('store', 'address').all()
+    serializer_class = StaffSerializer
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_fields = ['store', 'active']
+    search_fields = ['first_name', 'last_name', 'email', 'username']
+    ordering_fields = ['staff_id', 'first_name', 'last_name']
+    ordering = ['staff_id']
