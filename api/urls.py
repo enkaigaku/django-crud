@@ -6,7 +6,7 @@ from rest_framework.routers import DefaultRouter
 from .views import (
     LanguageViewSet, CategoryViewSet, CountryViewSet, CityViewSet,
     ActorViewSet, FilmViewSet, AddressViewSet, StoreViewSet, StaffViewSet,
-    CustomerViewSet, InventoryViewSet
+    CustomerViewSet, InventoryViewSet, RentalViewSet, PaymentViewSet
 )
 
 # Create a router for automatic URL routing
@@ -23,6 +23,8 @@ router.register(r'actors', ActorViewSet, basename='actor')
 router.register(r'films', FilmViewSet, basename='film')
 router.register(r'customers', CustomerViewSet, basename='customer')
 router.register(r'inventory', InventoryViewSet, basename='inventory')
+router.register(r'rentals', RentalViewSet, basename='rental')
+router.register(r'payments', PaymentViewSet, basename='payment')
 
 # Register supporting viewsets
 router.register(r'addresses', AddressViewSet, basename='address')

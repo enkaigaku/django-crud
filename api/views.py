@@ -5,11 +5,14 @@ from rest_framework import viewsets
 from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
 
-from .models import Language, Category, Country, City, Actor, Film, Address, Store, Staff, Customer, Inventory
+from .models import (
+    Language, Category, Country, City, Actor, Film, Address, Store, Staff,
+    Customer, Inventory, Rental, Payment
+)
 from .serializers import (
     LanguageSerializer, CategorySerializer, CountrySerializer, CitySerializer,
     ActorSerializer, FilmSerializer, AddressSerializer, StoreSerializer, StaffSerializer,
-    CustomerSerializer, InventorySerializer
+    CustomerSerializer, InventorySerializer, RentalSerializer, PaymentSerializer
 )
 
 
@@ -171,3 +174,32 @@ class InventoryViewSet(viewsets.ModelViewSet):
     search_fields = ['film__title']
     ordering_fields = ['inventory_id']
     ordering = ['inventory_id']
+
+
+class RentalViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for Rental model.
+
+    Provides CRUD operations for rental data with customer, inventory, and staff relationships.
+    """
+    queryset = Rental.objects.select_related('customer', 'inventory', 'inventory__film', 'staff').all()
+    serializer_class = RentalSerializer
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_fields = ['customer', 'inventory', 'staff']
+    search_fields = ['customer__first_name', 'customer__last_name', 'inventory__film__title']
+    ordering_fields = ['rental_id', 'rental_date', 'return_date']
+    ordering = ['-rental_date']
+
+
+class PaymentViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for Payment model.
+
+    Provides CRUD operations for payment data.
+    """
+    queryset = Payment.objects.all()
+    serializer_class = PaymentSerializer
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_fields = ['customer_id', 'staff_id', 'rental_id']
+    ordering_fields = ['payment_id', 'payment_date', 'amount']
+    ordering = ['-payment_date']
