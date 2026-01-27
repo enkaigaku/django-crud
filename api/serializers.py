@@ -2,7 +2,7 @@
 Django REST Framework Serializers for DVD Rental API
 """
 from rest_framework import serializers
-from .models import Language, Category, Country, City, Actor, Film, Address, Store, Staff
+from .models import Language, Category, Country, City, Actor, Film, Address, Store, Staff, Customer, Inventory
 
 
 class LanguageSerializer(serializers.ModelSerializer):
@@ -118,3 +118,37 @@ class StaffSerializer(serializers.ModelSerializer):
     def get_full_name(self, obj):
         """Combine first and last name"""
         return f"{obj.first_name} {obj.last_name}".strip()
+
+
+class CustomerSerializer(serializers.ModelSerializer):
+    """Serializer for Customer model"""
+    full_name = serializers.SerializerMethodField()
+    store_id = serializers.IntegerField(source='store.store_id', read_only=True)
+    address_info = serializers.CharField(source='address.address', read_only=True)
+
+    class Meta:
+        model = Customer
+        fields = [
+            'customer_id', 'store', 'store_id', 'first_name', 'last_name', 'full_name',
+            'email', 'address', 'address_info', 'activebool', 'create_date',
+            'last_update', 'active'
+        ]
+        read_only_fields = ['customer_id', 'create_date', 'last_update', 'full_name']
+        extra_kwargs = {
+            'password_hash': {'write_only': True},
+        }
+
+    def get_full_name(self, obj):
+        """Combine first and last name"""
+        return f"{obj.first_name} {obj.last_name}".strip()
+
+
+class InventorySerializer(serializers.ModelSerializer):
+    """Serializer for Inventory model"""
+    film_title = serializers.CharField(source='film.title', read_only=True)
+    store_id = serializers.IntegerField(source='store.store_id', read_only=True)
+
+    class Meta:
+        model = Inventory
+        fields = ['inventory_id', 'film', 'film_title', 'store', 'store_id', 'last_update']
+        read_only_fields = ['inventory_id', 'last_update']

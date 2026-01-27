@@ -5,10 +5,11 @@ from rest_framework import viewsets
 from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
 
-from .models import Language, Category, Country, City, Actor, Film, Address, Store, Staff
+from .models import Language, Category, Country, City, Actor, Film, Address, Store, Staff, Customer, Inventory
 from .serializers import (
     LanguageSerializer, CategorySerializer, CountrySerializer, CitySerializer,
-    ActorSerializer, FilmSerializer, AddressSerializer, StoreSerializer, StaffSerializer
+    ActorSerializer, FilmSerializer, AddressSerializer, StoreSerializer, StaffSerializer,
+    CustomerSerializer, InventorySerializer
 )
 
 
@@ -140,3 +141,33 @@ class StaffViewSet(viewsets.ModelViewSet):
     search_fields = ['first_name', 'last_name', 'email', 'username']
     ordering_fields = ['staff_id', 'first_name', 'last_name']
     ordering = ['staff_id']
+
+
+class CustomerViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for Customer model.
+
+    Provides CRUD operations for customer data with search and filtering.
+    """
+    queryset = Customer.objects.select_related('store', 'address').all()
+    serializer_class = CustomerSerializer
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_fields = ['store', 'activebool']
+    search_fields = ['first_name', 'last_name', 'email']
+    ordering_fields = ['customer_id', 'first_name', 'last_name', 'create_date']
+    ordering = ['customer_id']
+
+
+class InventoryViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for Inventory model.
+
+    Provides CRUD operations for inventory data with film and store relationships.
+    """
+    queryset = Inventory.objects.select_related('film', 'store').all()
+    serializer_class = InventorySerializer
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_fields = ['film', 'store']
+    search_fields = ['film__title']
+    ordering_fields = ['inventory_id']
+    ordering = ['inventory_id']
