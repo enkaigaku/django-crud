@@ -43,15 +43,23 @@ cd /Users/tokyoyuan/Workspace/claude/django-crud
 cat .env
 ```
 
-### 3. 激活虚拟环境
+### 3. 启动开发服务器（推荐使用 uv）
 
+**方式 1: 使用 uv（推荐）**
 ```bash
-source .venv/bin/activate
+# uv 会自动使用虚拟环境，无需手动激活
+uv run python manage.py runserver
+
+# 或者更简洁
+uv run manage.py runserver
 ```
 
-### 4. 启动开发服务器
-
+**方式 2: 传统方式**
 ```bash
+# 激活虚拟环境
+source .venv/bin/activate
+
+# 启动服务器
 python manage.py runserver
 ```
 
