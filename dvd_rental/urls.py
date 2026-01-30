@@ -1,3 +1,6 @@
+
+
+<file_content>
 """
 URL configuration for dvd_rental project.
 
@@ -22,11 +25,15 @@ urlpatterns = [
     # Django Admin
     path('admin/', admin.site.urls),
 
-    # API endpoints
-    path('api/', include('api.urls')),
+    # API endpoints (Modular Apps)
+    path('api/', include('apps.catalog.urls')),
+    path('api/', include('apps.geo.urls')),
+    path('api/', include('apps.account.urls')),
+    path('api/', include('apps.operation.urls')),
 
     # API Documentation
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     path('api/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 ]
+</file_content>
