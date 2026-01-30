@@ -56,10 +56,7 @@ class RentalViewSet(viewsets.GenericViewSet):
             )
 
         output_serializer = self.get_serializer(rental)
-        headers = self.get_success_headers(output_serializer.data)
-        return Response(
-            output_serializer.data, status=status.HTTP_201_CREATED, headers=headers
-        )
+        return Response(output_serializer.data, status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=["post"])
     def return_movie(self, request, pk=None):
