@@ -1,0 +1,13 @@
+[run]
+source = .
+omit =
+    */migrations/*
+    */tests.py
+    */tests/*
+    manage.py
+    dvd_rental/wsgi.py
+    dvd_rental/asgi.py
+
+[report]
+show_missing = True
+skip_covered = False

@@ -4,15 +4,12 @@ FROM ghcr.io/astral-sh/uv:python3.13-bookworm-slim AS builder
 # Enable bytecode compilation
 ENV UV_COMPILE_BYTECODE=1
 
-# Copy uv configuration files
+# Copy requirements file
 WORKDIR /app
-COPY pyproject.toml uv.lock ./
+COPY requirements.txt ./
 
-# Install dependencies
-# --frozen: Sync with uv.lock
-# --no-dev: Do not install dev dependencies
-# --no-install-project: Do not install the project itself yet
-RUN uv sync --frozen --no-dev --no-install-project
+# Install production dependencies only
+RUN uv pip install -r requirements.txt
 
 # Final stage
 FROM python:3.13-slim-bookworm

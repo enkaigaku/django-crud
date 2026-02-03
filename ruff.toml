@@ -1,0 +1,10 @@
+line-length = 120
+target-version = "py313"
+exclude = ["*/migrations/*"]
+
+[lint]
+select = ["E", "F", "I", "N", "W"]
+ignore = []
+
+[lint.isort]
+known-first-party = ["dvd_rental", "apps"]

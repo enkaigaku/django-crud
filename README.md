@@ -26,55 +26,255 @@ Django 6.0.1 + Django REST Framework で構築された、完全な DVD レン�
 - ✅ OpenAPI ドキュメント（Swagger UI + ReDoc）
 - ✅ ORM クエリ最適化（select_related）
 
-## クイックスタート
+## プロジェクト構造
 
-### 1. プロジェクトのクローン
+```
+django-crud/
+├── dvd_rental/          # Django プロジェクト設定
+│   ├── settings.py      # 設定ファイル
+│   ├── urls.py          # メインルーティング
+│   └── ...
+├── apps/                # アプリケーションモジュール
+│   ├── catalog/         # カタログ管理 (Film, Actor, etc.)
+│   ├── geo/             # 地理情報管理 (City, Country, etc.)
+│   ├── account/         # アカウント管理 (Customer, Staff)
+│   └── operation/       # 業務処理 (Rental, Payment, Inventory)
+├── .env.example         # 環境変数
+├── .gitignore           # Git 除外設定
+├── requirements.txt     # 本番用 Python 依存関係
+├── requirements-dev.txt # 開発用 Python 依存関係（ruff, coverage含む）
+├── .coveragerc          # Coverage 設定ファイル
+├── ruff.toml            # Ruff Linter 設定ファイル
+├── pyproject.toml       # プロジェクトメタデータ（設定用）
+├── Makefile             # 開発タスク自動化
+├── manage.py            # Django 管理スクリプト
+└── README.md            # プロジェクトドキュメント
+```
+
+## 開発環境のセットアップ
+
+### 1. リポジトリのクローン
 
 ```bash
 git clone https://github.com/enkaigaku/django-crud
+cd django-crud
 ```
 
-### 2. 環境設定
+### 2. 仮想環境の作成
 
-プロジェクトは `.env` ファイルで環境変数を管理しています：
+プロジェクト専用の仮想環境を作成します。
+
+**pip を使用する場合**
 
 ```bash
-# データベースは設定済みのため、変更は不要です
-# .env ファイルを確認
-cat .env
-```
+# 仮想環境の作成
+python -m venv .venv
 
-### 3. 開発サーバーの起動（uv 推奨）
-
-**方法 1: uv を使用（推奨）**
-```bash
-# uv は自動的に仮想環境を使用するため、手動でのアクティベートは不要です
-uv run python manage.py runserver
-
-# またはより簡潔に
-uv run manage.py runserver
-```
-
-**方法 2: 従来の方法**
-```bash
-# 仮想環境のアクティベート
+# 仮想環境の有効化（Mac/Linux）
 source .venv/bin/activate
 
-# サーバーの起動
-python manage.py runserver
+# 仮想環境の有効化（Windows）
+.venv\Scripts\activate
 ```
 
-サーバーは `http://localhost:8000` で起動します。
-
-### 4. データベースマイグレーション（初回実行時）
-
-初回実行時は Django システムテーブルを作成する必要があります：
+**uv を使用する場合（推奨）**
 
 ```bash
-uv run python manage.py migrate
+# uv は自動的に仮想環境を管理するため、手動での作成は不要です
+# uv が .venv を自動的に作成・管理します
 ```
 
-### 5. スーパーユーザーの作成（Admin 管理画面アクセス用）
+### 3. 依存関係のインストール
+
+開発に必要なすべての依存関係（Django、DRF、ruff、coverageなど）をインストールします。
+
+```bash
+# pip を使用する場合（仮想環境を有効化した状態で）
+pip install -r requirements-dev.txt
+
+# uv を使用する場合（推奨）
+uv pip install -r requirements-dev.txt
+```
+
+### 4. データベースの起動
+
+Docker Compose を使用してPostgreSQLを起動します。
+
+```bash
+docker compose up -d postgres
+```
+
+データベースコンテナは起動時に自動的に以下を実行します：
+- スキーマの作成（`migrations/001_initial_schema.sql`）
+- テーブルの作成（`migrations/002_pagila_schema.sql`）
+- サンプルデータの投入（`migrations/003_pagila_data.sql`）
+- 認証データの設定（`migrations/004_customer_auth.sql`, `005_staff_auth.sql`）
+
+※ 手動でのマイグレーション実行は不要です。
+
+### 5. 開発サーバーの起動
+
+```bash
+uv run python manage.py runserver
+```
+
+## 開発ワークフロー
+
+### コードの品質チェック（Lint）
+
+コードスタイルと潜在的なエラーをチェックします。
+
+```bash
+# Makefile を使用（推奨）
+make lint
+
+# または直接実行
+uv run ruff check .
+```
+
+**Ruff 設定**（`ruff.toml`）:
+- 1行の最大文字数: 120
+- チェック対象: エラー（E）、致命的エラー（F）、import順序（I）、命名規則（N）、警告（W）
+- 除外: `*/migrations/*`
+- import順序: dvd_rental, apps を first-party として認識
+
+### コードの自動修正（Format）
+
+自動で修正可能な問題を修正します。
+
+```bash
+# Makefile を使用（推奨）
+make format
+
+# または直接実行
+uv run ruff check . --fix
+```
+
+### テストの実行
+
+テストを実行し、カバレッジレポートを生成します。
+
+```bash
+# Makefile を使用（推奨）
+make test
+
+# または直接実行
+uv run coverage run manage.py test --testrunner=dvd_rental.test_runner.ExistingDBTestRunner
+uv run coverage report -m
+```
+
+**Coverage 設定**（`.coveragerc`）:
+- 対象ソース: プロジェクト全体
+- 除外パターン: migrations、tests、manage.py、wsgi.py、asgi.py
+- レポート設定:
+  - `show_missing = True`: カバレッジされていない行番号を表示
+  - `skip_covered = False`: カバレッジ100%のファイルも表示
+  - `fail_under = 80`: カバレッジ率80%未満で失敗
+
+### カバレッジレポートの確認
+
+```bash
+# ターミナルでレポート表示
+uv run coverage report -m
+
+# HTMLレポート生成（詳細な行単位のカバレッジ）
+uv run coverage html
+# 生成されたレポートを開く
+open htmlcov/index.html
+```
+
+## Makefile コマンド一覧
+
+開発タスクを簡単に実行できるように、Makefileが用意されています。
+
+| コマンド | 説明 |
+|---------|------|
+| `make test` | テストを実行し、カバレッジレポートを生成（80%未満で失敗） |
+| `make lint` | コードの静的解析を実行（エラーがあれば表示） |
+| `make format` | 自動修正可能な問題を修正 |
+
+## CI/CD
+
+GitHub Actions を使用して、プルリクエストとmainブランチへのプッシュ時に自動テストとビルドを実行します。
+
+**ワークフロー**（`.github/workflows/ci-cd.yml`）:
+1. PostgreSQLデータベースの起動
+2. Python 3.13 のセットアップ
+3. 依存関係のインストール（`requirements-dev.txt`）
+4. Ruff によるコードチェック
+5. テストの実行とカバレッジレポート
+6. Dockerイメージのビルドとプッシュ（mainブランチのみ）
+
+## 設定ファイルの説明
+
+### `requirements.txt`
+本番環境で必要な依存関係のリスト。Django、DRF、PostgreSQLドライバなどが含まれます。
+
+### `requirements-dev.txt`
+開発環境で必要な追加の依存関係。`requirements.txt` を含み、ruff と coverage が追加されています。
+
+### `.coveragerc`
+Coverage.py の設定ファイル。テストカバレッジの計測対象と除外パターンを定義します。
+
+### `ruff.toml`
+Ruff linter/formatter の設定ファイル。コードスタイル、チェックルール、import順序などを定義します。
+
+### `pyproject.toml`
+プロジェクトのメタデータと設定を含むファイル。現在は最小限の設定のみを保持しています。
+
+## ブランチ戦略
+
+- `main`: 本番環境用の安定版ブランチ
+- `develop`: 開発用ブランチ（未導入の場合）
+- `feature/*`: 新機能開発用のブランチ
+- `bugfix/*`: バグ修正用のブランチ
+
+## プルリクエストのガイドライン
+
+1. **コードチェック**: `make lint` がエラーなく通ること
+2. **テスト**: `make test` が成功し、カバレッジが80%以上であること
+3. **コミットメッセージ**: わかりやすく簡潔に記述
+4. **説明**: PRの目的と変更内容を明確に記載
+
+## トラブルシューティング
+
+### PostgreSQLへの接続エラー
+
+```bash
+# PostgreSQLが起動しているか確認
+docker compose ps
+
+# ログを確認
+docker compose logs postgres
+
+# 再起動
+docker compose restart postgres
+```
+
+### 依存関係のエラー
+
+```bash
+# 依存関係を再インストール
+pip install -r requirements-dev.txt --force-reinstall
+
+# または uv の場合
+uv pip install -r requirements-dev.txt --reinstall
+```
+
+#### データベースのリセット
+
+```bash
+# データベースコンテナを削除して再作成
+docker compose down -v
+docker compose up -d postgres
+
+# データベースが完全に起動するまで待機（15秒程度）
+sleep 15
+```
+
+## Django Admin 管理画面
+
+### スーパーユーザーの作成
 
 ```bash
 uv run python manage.py createsuperuser
@@ -88,8 +288,6 @@ uv run python manage.py createsuperuser
 **作成済みのテストアカウント**：
 - ユーザー名：`admin`
 - パスワード：`admin123456`（変更を推奨）
-
-## Django Admin 管理画面
 
 ### アクセス方法
 
@@ -311,26 +509,6 @@ curl "http://localhost:8000/api/payments/?ordering=-payment_date"
 13. **Payment** - 支払い（16049件）
     - サポート：クエリ、顧客/スタッフ/レンタルフィルタ、日付ソート
     - 特徴：金額クエリのサポート
-
-## プロジェクト構造
-
-```
-django-crud/
-├── dvd_rental/          # Django プロジェクト設定
-│   ├── settings.py      # 設定ファイル
-│   ├── urls.py          # メインルーティング
-│   └── ...
-├── apps/                # アプリケーションモジュール
-│   ├── catalog/         # カタログ管理 (Film, Actor, etc.)
-│   ├── geo/             # 地理情報管理 (City, Country, etc.)
-│   ├── account/         # アカウント管理 (Customer, Staff)
-│   └── operation/       # 業務処理 (Rental, Payment, Inventory)
-├── .env                 # 環境変数
-├── .gitignore           # Git 除外設定
-├── requirements.txt     # Python 依存関係
-├── manage.py            # Django 管理スクリプト
-└── README.md            # プロジェクトドキュメント
-```
 
 ## 開発進捗
 
