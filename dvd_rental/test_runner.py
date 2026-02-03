@@ -23,3 +23,19 @@ class ManagedModelTestRunner(DiscoverRunner):
         # Revert managed status
         for model in self.unmanaged_models:
             model._meta.managed = False
+
+
+class ExistingDBTestRunner(ManagedModelTestRunner):
+    """
+    Test runner that uses the existing database configuration without creating
+    a separate test database. Useful for CI/CD pipelines where the DB is
+    pre-populated via Docker Compose.
+    """
+
+    def setup_databases(self, **kwargs):
+        # Do not create test databases. Use the default one.
+        pass
+
+    def teardown_databases(self, old_config, **kwargs):
+        # Do not destroy test databases.
+        pass

@@ -10,23 +10,18 @@ jobs:
   test:
     name: Run Tests & Lint
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:17
-        env:
-          POSTGRES_DB: effect_crud
-          POSTGRES_USER: user
-          POSTGRES_PASSWORD: password
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Start Database with Docker Compose
+        run: |
+          docker compose up -d postgres
+          # Wait for PostgreSQL to be ready
+          echo "Waiting for PostgreSQL to be ready..."
+          until docker exec django-dvd-rental-db pg_isready -U postgres; do
+            sleep 2
+          done
 
       - name: Install uv
         uses: astral-sh/setup-uv@v5
@@ -44,13 +39,13 @@ jobs:
 
       - name: Run Tests
         env:
-          # Use the service container database
-          DATABASE_URL: postgres://user:password@localhost:5432/effect_crud
+          # Use the Docker Compose database
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/django-dvd-rental
           # Django secret key for testing
           SECRET_KEY: "django-insecure-test-key-do-not-use-in-production"
           DEBUG: "True"
         run: |
-          uv run python manage.py test
+          uv run python manage.py test --testrunner=dvd_rental.test_runner.ExistingDBTestRunner
 
   build:
     name: Build Docker Image
