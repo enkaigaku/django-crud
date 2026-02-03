@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 import os
-import sys
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -173,16 +172,7 @@ REST_FRAMEWORK = {
 
 # DRF Spectacular Configuration (OpenAPI/Swagger)
 # Custom Test Runner to handle managed=False models
-TEST_RUNNER = "dvd_rental.test_runner.ManagedModelTestRunner"
-
-# Disable migrations during tests to ensure tables are created for managed=False models
-if "test" in sys.argv:
-    MIGRATION_MODULES = {
-        "account": None,
-        "catalog": None,
-        "geo": None,
-        "operation": None,
-    }
+TEST_RUNNER = "dvd_rental.test_runner.ExistingDBTestRunner"
 
 SPECTACULAR_SETTINGS = {
     "TITLE": os.getenv("API_TITLE", "DVD Rental API"),
