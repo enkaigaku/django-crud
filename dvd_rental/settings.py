@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 import os
+import sys
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -26,9 +27,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv(
-    "SECRET_KEY", "django-insecure-zf1gdnex1x8m^09-qp)elyiza$@_pc$h2gorx81l)yjr1aq^$+"
-)
+SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-zf1gdnex1x8m^09-qp)elyiza$@_pc$h2gorx81l)yjr1aq^$+")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG", "True") == "True"
@@ -173,6 +172,18 @@ REST_FRAMEWORK = {
 }
 
 # DRF Spectacular Configuration (OpenAPI/Swagger)
+# Custom Test Runner to handle managed=False models
+TEST_RUNNER = "dvd_rental.test_runner.ManagedModelTestRunner"
+
+# Disable migrations during tests to ensure tables are created for managed=False models
+if "test" in sys.argv:
+    MIGRATION_MODULES = {
+        "account": None,
+        "catalog": None,
+        "geo": None,
+        "operation": None,
+    }
+
 SPECTACULAR_SETTINGS = {
     "TITLE": os.getenv("API_TITLE", "DVD Rental API"),
     "DESCRIPTION": "Complete CRUD API for DVD Rental Service based on PostgreSQL database",
