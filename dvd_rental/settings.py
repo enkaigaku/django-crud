@@ -88,9 +88,15 @@ WSGI_APPLICATION = "dvd_rental.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+_DB_USER = os.getenv("DB_USER", "postgres")
+_DB_PASSWORD = os.getenv("DB_PASSWORD", "postgres")
+_DB_HOST = os.getenv("DB_HOST", "localhost")
+_DB_PORT = os.getenv("DB_PORT", "5432")
+_DB_NAME = os.getenv("DB_NAME", "effect_crud")
+
 DATABASES = {
     "default": dj_database_url.config(
-        default=f"postgres://{os.getenv('DB_USER', 'postgres')}:{os.getenv('DB_PASSWORD', 'postgres')}@{os.getenv('DB_HOST', 'localhost')}:{os.getenv('DB_PORT', '5432')}/{os.getenv('DB_NAME', 'effect_crud')}",
+        default=f"postgres://{_DB_USER}:{_DB_PASSWORD}@{_DB_HOST}:{_DB_PORT}/{_DB_NAME}",
         conn_max_age=600,
         conn_health_checks=True,
     )
@@ -120,9 +126,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
 
-LANGUAGE_CODE = "zh-hans"
+LANGUAGE_CODE = "ja"
 
-TIME_ZONE = "Asia/Shanghai"
+TIME_ZONE = "Asia/Tokyo"
 
 USE_I18N = True
 
