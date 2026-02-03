@@ -25,6 +25,15 @@ jobs:
             sleep 2
           done
 
+          # Sleep to allow initialization scripts to run and DB to restart
+          echo "Waiting for initialization scripts to complete..."
+          sleep 15
+
+          # Wait for PostgreSQL to be ready again
+          until docker exec django-dvd-rental-db pg_isready -U postgres; do
+            sleep 2
+          done
+
       - name: Install uv
         uses: astral-sh/setup-uv@v5
         with:
@@ -38,6 +47,9 @@ jobs:
 
       - name: Lint with Ruff
         run: uv run ruff check .
+
+      - name: Check Database Logs (Pre-Test)
+        run: docker compose logs postgres
 
       - name: Run Tests
         env:
