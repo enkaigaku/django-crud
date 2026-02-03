@@ -28,6 +28,7 @@ dependencies = [
 [dependency-groups]
 dev = [
     "ruff>=0.9.0",
+    "coverage>=7.0.0",
 ]
 
 [tool.uv]
@@ -44,3 +45,18 @@ ignore = []
 
 [tool.ruff.lint.isort]
 known-first-party = ["dvd_rental", "apps"]
+
+[tool.coverage.run]
+source = ["."]
+omit = [
+    "*/migrations/*",
+    "*/tests.py",
+    "*/tests/*",
+    "manage.py",
+    "dvd_rental/wsgi.py",
+    "dvd_rental/asgi.py",
+]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true

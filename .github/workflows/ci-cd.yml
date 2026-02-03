@@ -59,7 +59,8 @@ jobs:
           SECRET_KEY: "django-insecure-test-key-do-not-use-in-production"
           DEBUG: "True"
         run: |
-          uv run python manage.py test --testrunner=dvd_rental.test_runner.ExistingDBTestRunner
+          uv run coverage run manage.py test --testrunner=dvd_rental.test_runner.ExistingDBTestRunner
+          uv run coverage report -m
 
       - name: Show Docker Logs
         if: failure()
