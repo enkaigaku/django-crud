@@ -9,6 +9,7 @@ dependencies = [
     "attrs==25.4.0",
     "django==6.0.1",
     "django-filter==25.2",
+    "dj-database-url>=2.3.0",
     "djangorestframework==3.16.1",
     "drf-spectacular==0.29.0",
     "gunicorn>=23.0.0",
