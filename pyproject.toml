@@ -1,0 +1,44 @@
+[project]
+name = "dvd-rental-api"
+version = "0.1.0"
+description = "DVD Rental API built with Django and DRF"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "asgiref==3.11.0",
+    "attrs==25.4.0",
+    "django==6.0.1",
+    "django-filter==25.2",
+    "djangorestframework==3.16.1",
+    "drf-spectacular==0.29.0",
+    "gunicorn>=23.0.0",
+    "inflection==0.5.1",
+    "jsonschema==4.26.0",
+    "jsonschema-specifications==2025.9.1",
+    "psycopg2-binary==2.9.11",
+    "python-dotenv==1.2.1",
+    "pyyaml==6.0.3",
+    "referencing==0.37.0",
+    "rpds-py==0.30.0",
+    "sqlparse==0.5.5",
+    "uritemplate==4.2.0",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.9.0",
+]
+
+[tool.uv]
+package = false
+
+[tool.ruff]
+line-length = 88
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W"]
+ignore = []
+
+[tool.ruff.lint.isort]
+known-first-party = ["dvd_rental", "apps"]
