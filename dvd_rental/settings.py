@@ -1,6 +1,3 @@
-
-
-<file_content>
 """
 Django settings for dvd_rental project.
 
@@ -57,7 +54,6 @@ INSTALLED_APPS = [
     "apps.geo",
     "apps.account",
     "apps.operation",
-    "api",
 ]
 
 MIDDLEWARE = [
@@ -192,4 +188,3 @@ SPECTACULAR_SETTINGS = {
     "COMPONENT_SPLIT_REQUEST": True,
     "SCHEMA_PATH_PREFIX": "/api/",
 }
-</file_content>

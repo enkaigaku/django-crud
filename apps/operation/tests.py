@@ -7,6 +7,11 @@ from rest_framework.test import APIRequestFactory
 
 from apps.account.models import Customer, Staff
 from apps.operation.models import Inventory, Rental
+from apps.operation.serializers import (
+    InventorySerializer,
+    PaymentSerializer,
+    RentalSerializer,
+)
 from apps.operation.services import RentalService
 from apps.operation.views import RentalViewSet
 
@@ -245,3 +250,66 @@ class RentalViewSetTests(TestCase):
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data[0], "Already returned")
+
+
+class SerializerTests(TestCase):
+    def test_inventory_serializer(self):
+        # Mock Inventory with related Film and Store
+        inventory = MagicMock(spec=Inventory)
+        inventory.inventory_id = 1
+        inventory.last_update = "2023-01-01"
+
+        # Mock related objects
+        inventory.film.title = "Test Film"
+        inventory.store.store_id = 100
+
+        serializer = InventorySerializer(inventory)
+        data = serializer.data
+
+        self.assertEqual(data["inventory_id"], 1)
+        self.assertEqual(data["film_title"], "Test Film")
+        self.assertEqual(data["store_id"], 100)
+
+    def test_rental_serializer(self):
+        # Mock Rental with related objects
+        rental = MagicMock(spec=Rental)
+        rental.rental_id = 1
+        rental.rental_date = "2023-01-01T10:00:00Z"
+        rental.return_date = None
+
+        # Related Inventory -> Film
+        rental.inventory.film.title = "The Matrix"
+
+        # Related Customer
+        rental.customer.first_name = "John"
+        rental.customer.last_name = "Doe"
+
+        # Related Staff
+        rental.staff.first_name = "Jane"
+        rental.staff.last_name = "Smith"
+
+        serializer = RentalSerializer(rental)
+        data = serializer.data
+
+        self.assertEqual(data["rental_id"], 1)
+        self.assertEqual(data["film_title"], "The Matrix")
+        self.assertEqual(data["customer_name"], "John Doe")
+        self.assertEqual(data["staff_name"], "Jane Smith")
+        self.assertEqual(data["is_returned"], False)
+
+        # Test returned case
+        rental.return_date = "2023-01-02T10:00:00Z"
+        serializer = RentalSerializer(rental)
+        self.assertEqual(serializer.data["is_returned"], True)
+
+    def test_payment_serializer(self):
+        data = {
+            "customer_id": 1,
+            "staff_id": 2,
+            "rental_id": 3,
+            "amount": "10.50",
+            "payment_date": "2023-01-01T12:00:00Z",
+        }
+        serializer = PaymentSerializer(data=data)
+        self.assertTrue(serializer.is_valid())
+        self.assertEqual(float(serializer.validated_data["amount"]), 10.50)
