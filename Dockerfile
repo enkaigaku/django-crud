@@ -1,28 +1,17 @@
-# Use a Python image with uv pre-installed
-FROM ghcr.io/astral-sh/uv:python3.13-bookworm-slim AS builder
-
-# Enable bytecode compilation
-ENV UV_COMPILE_BYTECODE=1
-
-# Copy requirements file
-WORKDIR /app
-COPY requirements.txt ./
-
-# Install production dependencies only
-RUN uv pip install -r requirements.txt
-
-# Final stage
+# Use Python 3.13 slim image
 FROM python:3.13-slim-bookworm
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PATH="/app/.venv/bin:$PATH"
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
 
 WORKDIR /app
 
-# Copy the virtual environment from the builder stage
-COPY --from=builder /app/.venv /app/.venv
+# Install dependencies
+COPY requirements.txt .
+RUN pip install -r requirements.txt
 
 # Copy application code
 COPY . .
