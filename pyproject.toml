@@ -33,8 +33,9 @@ dev = [
 package = false
 
 [tool.ruff]
-line-length = 88
+line-length = 120
 target-version = "py313"
+exclude = ["*/migrations/*"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "W"]
