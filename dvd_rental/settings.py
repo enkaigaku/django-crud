@@ -92,7 +92,7 @@ _DB_USER = os.getenv("DB_USER", "postgres")
 _DB_PASSWORD = os.getenv("DB_PASSWORD", "postgres")
 _DB_HOST = os.getenv("DB_HOST", "localhost")
 _DB_PORT = os.getenv("DB_PORT", "5432")
-_DB_NAME = os.getenv("DB_NAME", "effect_crud")
+_DB_NAME = os.getenv("DB_NAME", "django-dvd-rental")
 
 DATABASES = {
     "default": dj_database_url.config(

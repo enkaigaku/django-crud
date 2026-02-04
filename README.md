@@ -101,7 +101,7 @@ uv pip install -r requirements-dev.txt
 Docker Compose を使用してPostgreSQLを起動します。
 
 ```bash
-docker compose up -d postgres
+docker compose up
 ```
 
 データベースコンテナは起動時に自動的に以下を実行します：
@@ -114,8 +114,10 @@ docker compose up -d postgres
 
 ### 5. 開発サーバーの起動
 
+.env.exampleを基に.envファイルを作成
+
 ```bash
-uv run python manage.py runserver
+python manage.py runserver
 ```
 
 ## 開発ワークフロー
@@ -125,11 +127,7 @@ uv run python manage.py runserver
 コードスタイルと潜在的なエラーをチェックします。
 
 ```bash
-# Makefile を使用（推奨）
-make lint
-
-# または直接実行
-uv run ruff check .
+ruff check .
 ```
 
 **Ruff 設定**（`ruff.toml`）:
@@ -143,11 +141,7 @@ uv run ruff check .
 自動で修正可能な問題を修正します。
 
 ```bash
-# Makefile を使用（推奨）
-make format
-
-# または直接実行
-uv run ruff check . --fix
+ruff check . --fix
 ```
 
 ### テストの実行
@@ -155,12 +149,8 @@ uv run ruff check . --fix
 テストを実行し、カバレッジレポートを生成します。
 
 ```bash
-# Makefile を使用（推奨）
-make test
-
-# または直接実行
-uv run coverage run manage.py test --testrunner=dvd_rental.test_runner.ExistingDBTestRunner
-uv run coverage report -m
+coverage run manage.py test
+coverage report -m
 ```
 
 **Coverage 設定**（`.coveragerc`）:
@@ -175,23 +165,13 @@ uv run coverage report -m
 
 ```bash
 # ターミナルでレポート表示
-uv run coverage report -m
+coverage report -m
 
 # HTMLレポート生成（詳細な行単位のカバレッジ）
-uv run coverage html
+coverage html
 # 生成されたレポートを開く
 open htmlcov/index.html
 ```
-
-## Makefile コマンド一覧
-
-開発タスクを簡単に実行できるように、Makefileが用意されています。
-
-| コマンド | 説明 |
-|---------|------|
-| `make test` | テストを実行し、カバレッジレポートを生成（80%未満で失敗） |
-| `make lint` | コードの静的解析を実行（エラーがあれば表示） |
-| `make format` | 自動修正可能な問題を修正 |
 
 ## CI/CD
 
